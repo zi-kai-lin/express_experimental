@@ -1,0 +1,63 @@
+name: CI/CD Pipeline
+
+on:
+  # Run on pushes to main branches
+  push:
+    branches: [ main, master, develop ]
+  # Run on PRs to main branches
+  pull_request:
+    branches: [ main, master, develop ]
+  # Allow manual triggering
+  workflow_dispatch:
+
+jobs:
+  # Test job - runs unit tests
+  test:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Use Node.js 20.x
+      uses: actions/setup-node@v3
+      with:
+        node-version: 20.x
+        cache: 'npm'
+    
+    - name: Install dependencies
+      run: npm ci
+    
+    - name: Set up test environment
+      run: |
+        echo "SECRET_KEY=test_secret_key" >> .env
+        echo "SECRET_EXPIRATION=1h" >> .env
+    
+    - name: Run tests
+      run: npm test
+
+  # Docker build job - runs after tests pass
+  docker-build:
+    needs: test  # This makes docker-build run only if test succeeds
+    runs-on: ubuntu-latest
+    # Only run on pushes to branches, not on PRs
+    if: github.event_name != 'pull_request'
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v2
+    
+    - name: Build the Docker image
+      uses: docker/build-push-action@v4
+      with:
+        context: .
+        push: false
+        tags: calendar-task-app:${{ github.sha }}
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
+    
+    # Optional: Test the built Docker image
+    - name: Test Docker container
+      run: |
+        docker images
+        # Uncomment when you have a test setup for Docker
+        # docker-compose -f docker-compose.test.yml up --abort-on-container-exit --exit-code-from ap

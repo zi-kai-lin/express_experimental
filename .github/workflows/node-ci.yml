@@ -1,0 +1,31 @@
+name: Node.js Unit Tests
+
+on:
+  push:
+    branches: [ main, master, develop ]
+  pull_request:
+    branches: [ main, master, develop ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Use Node.js 20.x
+      uses: actions/setup-node@v3
+      with:
+        node-version: 20.x
+        cache: 'npm'
+    
+    - name: Install dependencies
+      run: npm ci
+    
+    - name: Set up test environment
+      run: |
+        echo "SECRET_KEY=test_secret_key" >> .env
+        echo "SECRET_EXPIRATION=1h" >> .env
+    
+    - name: Run tests
+      run: npm test
