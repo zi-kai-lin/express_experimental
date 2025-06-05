@@ -3,8 +3,10 @@
   "version": "1.0.0",
   "main": "server.js",
   "scripts": {
+
     "test": "jest",
     "test:watch": "jest --watch",
+
     "dev": "nodemon server.js"
   },
   "keywords": [],
@@ -23,7 +25,9 @@
     "mysql2": "^3.14.1"
   },
   "devDependencies": {
+
     "jest": "^29.7.0",
+
     "nodemon": "^3.1.10"
   }
 }

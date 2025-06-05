@@ -1,0 +1,56 @@
+
+
+services:
+  app:
+    #Look for Dockerfile
+    build: .
+    #local 3005 to container 3000
+    ports:
+      - "3005:3000"
+    environment:
+      - PORT=3000
+      - SECRET_EXPIRATION=1h
+      - DB_HOST=db
+      - DB_USER=root
+      - DB_PASSWORD=root
+      - DB_NAME=calendar_task
+    depends_on:
+      - db
+  # can enable how reload, mount, is accessing files from local machine to docker container
+  # Blind monuts, link a folder on host mahine to folder in container
+  # Volumes, docker managed storaged indpenednet of container 
+  #Tmpfs mount, store data in memory
+  # map the local file system change to the app file system (work dir from docker file which means it can hot reload)
+  # as we specified with /app/node_modules, it is except the node_modules
+    volumes:
+      - ./:/app
+      - /app/node_modules
+    restart: unless-stopped
+
+  db:
+    image: mysql:8.0
+    command: --default-authentication-plugin=mysql_native_password
+    ports:
+      - "3307:3306"  # Using 3307 on host to avoid conflicts with existing MySQL
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_DATABASE=calendar_task
+    volumes:
+      - mysql_data:/var/lib/mysql
+    restart: unless-stopped
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    ports:
+      - "8080:80"  # Access via http://localhost:8080
+    environment:
+      - PMA_HOST=db
+      - PMA_USER=root
+      - PMA_PASSWORD=root
+    depends_on:
+      - db
+    restart: unless-stopped
+
+volumes:
+  mysql_data: {}
+

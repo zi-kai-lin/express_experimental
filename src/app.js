@@ -12,7 +12,8 @@ const corsSetting = {
 
     origin: [
 
-        "http://localhost:3000"
+        "http://localhost:3000",
+        "http://localhost:3005"
         
 
     ],
@@ -45,7 +46,7 @@ app.use(bodyParser.json());
 
 app.get("/", (req, res) => {
 
-    res.status(200).json({message:"hello"});
+    res.status(200).json({message:"hello2"});
 
 });
 

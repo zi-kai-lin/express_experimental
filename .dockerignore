@@ -1,0 +1,15 @@
+# Version control
+.git
+.gitignore
+
+# Node.js dependencies
+node_modules
+
+# Environment variables and secrets
+.env
+.env.*
+
+
+Dockerfile
+.dockerignore
+docker-compose*.yml
