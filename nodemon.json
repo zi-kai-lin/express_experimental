@@ -1,0 +1,14 @@
+{
+    "watch": [
+      "server.js",
+      "./src/app.js",
+      "./src/router/*",
+      "./src/controller/*",
+      "./src/middlewares/*",
+      "./src/config/*"
+    ],
+    "ext": "js,json",
+    "ignore": ["node_modules/", ".git/"],
+    "delay": "500",
+    "legacyWatch": true
+  }
