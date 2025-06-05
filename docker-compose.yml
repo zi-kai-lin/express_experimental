@@ -14,8 +14,11 @@ services:
       - DB_USER=root
       - DB_PASSWORD=root
       - DB_NAME=calendar_task
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
     depends_on:
       - db
+      - redis
   # can enable how reload, mount, is accessing files from local machine to docker container
   # Blind monuts, link a folder on host mahine to folder in container
   # Volumes, docker managed storaged indpenednet of container 
@@ -51,6 +54,17 @@ services:
       - db
     restart: unless-stopped
 
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
+
+
+
 volumes:
   mysql_data: {}
+  redis_data: {}
 

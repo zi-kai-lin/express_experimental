@@ -4,9 +4,11 @@ const bodyParser = require('body-parser');
 const cors = require("cors");
 const helmet = require('helmet');
 const morgan = require("morgan");
-const { testConnection, initializeDatabase } = require("./config/database.js");
+const { testConnection, initializeDatabase, pool } = require("./config/database");
+const { connectRedis, client } = require("./config/redis")
 const { authRouter } = require("./router/authentication")
 const { taskRouter } = require("./router/tasks")
+
 /* Define global middlewares */
 const corsSetting = {
 
@@ -34,6 +36,7 @@ const app = express();
 (async () => {
     await testConnection();
     await initializeDatabase();
+    await connectRedis();
 })();
 
 
@@ -59,8 +62,6 @@ app.use("/api/task", taskRouter);
 
 
 
-module.exports = app;
-
 
 
 /* const PORT = process.env.PORT;
@@ -72,4 +73,34 @@ app.listen(PORT, () => {
  */
 
 
+const shutdown = async (signal) => {
+    console.log(`Received ${signal}, shutting down gracefully...`);
+    
+    try {
+        // Close Redis connection
+        if (client.isOpen) {
+            await client.quit();
+            console.log('Redis connection closed');
+        }
 
+        if (pool){
+            await pool.end();
+            console.log("sql pool closed")
+
+        }
+        
+        // Close MySQL pool (if you have pool.end())
+        // await pool.end();
+        
+        process.exit(0);
+    } catch (error) {
+        console.error('Error during shutdown:', error);
+        process.exit(1);
+    }
+};
+
+// Listen for shutdown signals
+process.on('SIGTERM', () => shutdown('SIGTERM'));
+process.on('SIGINT', () => shutdown('SIGINT'));   // Ctrl+C
+
+module.exports = app;

@@ -18,8 +18,9 @@ taskRouter.use(authenticate);
 
 taskRouter.post("/add", addTask);
 taskRouter.post("/filteredSearch", getTaskByDate);
-taskRouter.get("/:taskId", getTask);
 taskRouter.get("/all", getAllTask);
+/* Need to makesure that this only handles int, otherwise it conflict with all */
+taskRouter.get("/:taskId", getTask);
 taskRouter.get("/count", getCount)
 taskRouter.delete("/:taskId", deleteTask);
 taskRouter.patch("/:taskId", update);

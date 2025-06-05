@@ -1,5 +1,6 @@
 const { pool } = require("../config/database")
 
+const { cacheGet, cacheSet, cacheDel } = require("../utils/redis.js")
 
 /*     return jwt.sign({id :user.id, name: user.username, email: user.email}, secretKey, {expiresIn: expiration})
  */
@@ -35,6 +36,11 @@ const addTask = async(req, res) => {
 
         await connection.commit();
         
+        const cachedKey = `user:${user_id}:tasks:all`
+        console.log("deleting cache for user", user_id)
+        await cacheDel(cachedKey)
+
+
         return res.status(201).json({
 
             message: "success",
@@ -88,12 +94,33 @@ const getAllTask = async(req, res) => {
 
         const userId = req.user.id
 
+
+        const cacheKey = `user:${userId}:tasks:all`
+
+        const cachedResult = await cacheGet(cacheKey);
+
+        if(cachedResult){
+            console.log("obtaining results from cache, skipping database");
+            return res.status(200).json({
+
+
+                message: "success",
+                result: cachedResult
+    
+    
+            })    
+
+        }
+        console.log("cache miss")
         const [tasks] = await connection.execute(`
             
             SELECT * FROM Tasks WHERE user_id = ?
             
             
         `, [userId]);
+
+            
+        await cacheSet(cacheKey, tasks, 300);
 
 
         return res.status(200).json({
