@@ -121,20 +121,17 @@ const register = async (req,res) => {
 
 
 const login = async(req, res) => {
-
     const connection = await pool.getConnection();
 
     try{
-
         const body = req.body;
         const username = body.username;
         const password = body.password;
-
+        console.log(body, username, password)
         /* Obtain the user and its password */
         const [userQuery] = await connection.execute(`
             SELECT id, username, email, password FROM Users WHERE username = ?     
         `, [username]) 
-
         if(userQuery.length == 0){
             throw new Error("invalid login");
         }
@@ -159,8 +156,6 @@ const login = async(req, res) => {
             
 
             res.setHeader("Authorization", `Bearer ${token}`)
-            console.log(req.headers.Authorization)
-            console.log(headers)
             return res.status(200).json({
 
                 message: "Login successful"
@@ -174,7 +169,7 @@ const login = async(req, res) => {
         }else{
 
 
-            throw new Error("Invalid login")
+            throw new Error("Invalid login Error")
 
         }
 
@@ -187,7 +182,7 @@ const login = async(req, res) => {
 
     }
     catch(error){
-
+        console.log(error)
         return res.status(400).json({
 
             error: "Invalid Login"
